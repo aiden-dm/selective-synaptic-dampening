@@ -3,9 +3,9 @@
 import torch
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
-from datasets import UnLearningData
+from .datasets import UnLearningData
 import numpy as np
-from utils import *
+from .utils import *
 
 
 def UnlearnerLoss(
@@ -121,6 +121,7 @@ def blindspot_unlearner(
         )
         print("Epoch {} Unlearning Loss {}".format(epoch + 1, loss))
 
+    return model
 
 class UNSIR_noise(torch.nn.Module):
     def __init__(self, *dim):
