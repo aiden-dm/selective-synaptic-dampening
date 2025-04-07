@@ -3,7 +3,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from training_utils import *
+from .training_utils import *
 
 
 def accuracy(outputs, labels):
