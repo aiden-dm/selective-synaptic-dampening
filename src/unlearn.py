@@ -112,7 +112,6 @@ def blindspot_unlearner(
     val_forget_loader = loaders[3]
 
     # Create a history variable to store information
-    history = []
     tf_accs = []
     tr_accs = []
     vf_accs = []
@@ -151,16 +150,17 @@ def blindspot_unlearner(
         tf_accs.append(acc_dict['tf_acc'])
         vr_accs.append(acc_dict['vr_acc'])
         vf_accs.append(acc_dict['vf_acc'])
-        history.append({
-            'losses': losses,
-            'epoch_list': epoch_list,
-            'tr_accs': tr_accs,
-            'tf_accs': tf_accs,
-            'vr_accs': vr_accs,
-            'vf_accs': vf_accs
-        })
 
         print("Epoch {} Unlearning Loss {}".format(epoch + 1, loss))
+
+    history = {
+        'losses': losses,
+        'epoch_list': epoch_list,
+        'tr_accs': tr_accs,
+        'tf_accs': tf_accs,
+        'vr_accs': vr_accs,
+        'vf_accs': vf_accs
+    }
 
     return model, history
 
