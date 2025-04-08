@@ -3,6 +3,7 @@
 import torch
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import StepLR
 from .datasets import UnLearningData
 import numpy as np
 from .utils import *
@@ -98,6 +99,8 @@ def blindspot_unlearner(
     batch_size=256,
     device="cuda",
     KL_temperature=1,
+    step_size=3,
+    gamma=0.5
 ):
     # creating the unlearning dataset.
     unlearning_data = UnLearningData(forget_data=forget_data, retain_data=retain_data)
@@ -128,6 +131,9 @@ def blindspot_unlearner(
         # if optimizer is not a valid string, then assuming it as a function to return optimizer
         optimizer = optimizer  # (model.parameters())
 
+    # Setting up a learning rate scheduler
+    scheduler = StepLR(optimizer, step_size=step_size, gamma=gamma)
+
     for epoch in range(epochs):
         loss = unlearning_step(
             model=model,
@@ -150,6 +156,8 @@ def blindspot_unlearner(
         tf_accs.append(acc_dict['tf_acc'])
         vr_accs.append(acc_dict['vr_acc'])
         vf_accs.append(acc_dict['vf_acc'])
+
+        scheduler.step()
 
         print("Epoch {} Unlearning Loss {}".format(epoch + 1, loss))
 
