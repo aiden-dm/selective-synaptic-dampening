@@ -3,15 +3,10 @@
 import torch
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import StepLR
-from .datasets import UnLearningData
+from datasets import UnLearningData
 import numpy as np
-from .utils import *
+from utils import *
 
-# Adding the local files to the system path
-sys.path.append('/content/Unlearning-MIA-Eval/Final_Structure')
-
-from Final_Structure.evaluate import train_validation
 
 def UnlearnerLoss(
     output, labels, full_teacher_logits, unlearn_teacher_logits, KL_temperature
@@ -92,34 +87,18 @@ def blindspot_unlearner(
     full_trained_teacher,
     retain_data,
     forget_data,
-    loaders,
     epochs=10,
     optimizer="adam",
     lr=0.01,
     batch_size=256,
     device="cuda",
     KL_temperature=1,
-    print_accuracies=False
 ):
     # creating the unlearning dataset.
     unlearning_data = UnLearningData(forget_data=forget_data, retain_data=retain_data)
     unlearning_loader = DataLoader(
         unlearning_data, batch_size=batch_size, shuffle=True, pin_memory=True
     )
-
-    # Extract loaders used for validation
-    train_retain_loader = loaders[0]
-    train_forget_loader = loaders[1]
-    val_retain_loader = loaders[2]
-    val_forget_loader = loaders[3]
-
-    # Create a history variable to store information
-    tf_accs = []
-    tr_accs = []
-    vf_accs = []
-    vr_accs = []
-    losses = []
-    epoch_list = []
 
     unlearning_teacher.eval()
     full_trained_teacher.eval()
@@ -140,38 +119,8 @@ def blindspot_unlearner(
             device=device,
             KL_temperature=KL_temperature,
         )
-        
-        losses.append(loss)
-        epoch_list.append(epoch)
-        acc_dict = train_validation(model, 
-                                    train_retain_loader, 
-                                    train_forget_loader, 
-                                    val_retain_loader, 
-                                    val_forget_loader)
-        tr_accs.append(acc_dict['tr_acc'])
-        tf_accs.append(acc_dict['tf_acc'])
-        vr_accs.append(acc_dict['vr_acc'])
-        vf_accs.append(acc_dict['vf_acc'])
-
         print("Epoch {} Unlearning Loss {}".format(epoch + 1, loss))
 
-        # Print epoch progress
-        if print_accuracies:
-            print(f"   tr_acc: {acc_dict['tr_acc']}")
-            print(f"   tf_acc: {acc_dict['tf_acc']}")
-            print(f"   vr_acc: {acc_dict['vr_acc']}")
-            print(f"   vf_acc: {acc_dict['vf_acc']}")
-
-    history = {
-        'losses': losses,
-        'epoch_list': epoch_list,
-        'tr_accs': tr_accs,
-        'tf_accs': tf_accs,
-        'vr_accs': vr_accs,
-        'vf_accs': vf_accs
-    }
-
-    return model, history
 
 class UNSIR_noise(torch.nn.Module):
     def __init__(self, *dim):
