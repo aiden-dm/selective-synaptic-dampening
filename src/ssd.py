@@ -161,7 +161,7 @@ class ParameterPerturber:
         criterion = nn.CrossEntropyLoss()
         importances = self.zerolike_params_dict(self.model)
         for batch in dataloader:
-            x, _, y = batch
+            x, y = batch
             x, y = x.to(self.device), y.to(self.device)
             self.opt.zero_grad()
             out = self.model(x)
