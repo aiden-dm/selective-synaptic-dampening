@@ -178,6 +178,8 @@ class ParameterPerturber:
         total_samples = float(len(dataloader.dataset))
         for _, imp in importances.items():
             imp.data /= total_samples
+        
+        return importances
 
     def modify_weight(
         self,
