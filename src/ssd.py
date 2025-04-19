@@ -175,9 +175,9 @@ class ParameterPerturber:
                     imp.data += p.grad.data.clone().pow(2)
 
         # average over mini batch length
+        total_samples = float(len(dataloader.dataset))
         for _, imp in importances.items():
-            imp.data /= float(len(dataloader))
-        return importances
+            imp.data /= total_samples
 
     def modify_weight(
         self,
